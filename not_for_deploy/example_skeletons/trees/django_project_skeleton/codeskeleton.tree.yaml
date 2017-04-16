@@ -35,10 +35,11 @@ files:
   "{{{ project_name }}}/project/develop/dumps/dev/.keep": {content: ''}
 
   "{{{ project_name }}}/{{{ project_name }}}_core/__init__.py": {content: ''}
-  "{{{ project_name }}}/{{{ project_name }}}_core/tests/__init__.py": {content: ''}
-  "{{{ project_name }}}/{{{ project_name }}}_core/tests/models.py":
+  "{{{ project_name }}}/{{{ project_name }}}_core/models.py":
     content: |
       from django.db import models
+  "{{{ project_name }}}/{{{ project_name }}}_core/tests/__init__.py": {content: ''}
+  "{{{ project_name }}}/{{{ project_name }}}_core/tests/test_models.py": {content: ''}
 
 postprocess_files:
   "*.py":

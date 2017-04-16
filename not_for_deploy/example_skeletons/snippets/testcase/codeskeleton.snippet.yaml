@@ -1,0 +1,13 @@
+id: codeskeleton_example.testcase
+
+variables:
+  required:
+    name:
+      help: Name of the test case - automatically suffixed with TestCase to create the test case class name.
+template: |
+  from django import test
+
+
+  class {{ name }}TestCase(test.TestCase):
+      def test_something(self):
+          {{ END }}

@@ -1,0 +1,53 @@
+id: codeskeleton_example.django_project_skeleton
+title: Django project skeleton
+description: |
+  Donec ullamcorper nulla non metus auctor fringilla. Sed posuere consectetur
+  est at lobortis. Cras justo odio, dapibus ac facilisis in, egestas eget quam.
+  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas sed diam
+  eget risus varius blandit sit amet non magna. Donec sed odio dui. Aenean
+  lacinia bibendum nulla sed consectetur.
+
+  Aenean eu leo quam. Pellentesque ornare sem lacinia quam venenatis vestibulum.
+  Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus
+  et magnis dis parturient montes, nascetur ridiculus mus. Sed posuere consectetur
+  est at lobortis. Integer posuere erat a ante venenatis dapibus posuere velit
+  aliquet. Sed posuere consectetur est at lobortis.
+variables:
+  project_name:
+    help_text: |
+      The name of your project. Will become the module name
+      and will be set as the name of your project.
+  default_from_email:
+    default:
+      value: test@example.com
+    help_text: Value for settings.DEFAULT_FROM_EMAIL.
+    validators:
+      email: {}
+  project_prettyname:
+    default:
+      variable: project_name
+  secret_key:
+    generator: django_secret_key
+    arguments:
+      length: 50
+
+files:
+  "{{{ project_name }}}/__init__.py": {content: ''}
+  "{{{ project_name }}}/project/__init__.py": {content: ''}
+
+  "{{{ project_name }}}/project/default/__init__.py": {content: ''}
+  "{{{ project_name }}}/project/default/default_settings.py":
+    templatepath: project/default/default_settings.codeskeleton.py
+
+  "{{{ project_name }}}/project/develop/__init__.py": {content: ''}
+  "{{{ project_name }}}/project/develop/dumps/dev/.keep": {content: ''}
+
+  "{{{ project_name }}}/{{{ project_name }}}_core/__init__.py": {content: ''}
+  "{{{ project_name }}}/{{{ project_name }}}_core/tests/__init__.py": {content: ''}
+  "{{{ project_name }}}/{{{ project_name }}}_core/tests/models.py":
+    content: |
+      from django.db import models
+
+postprocess_files:
+  "*.py":
+    - single_empty_last_line

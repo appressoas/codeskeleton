@@ -1,17 +1,9 @@
 id: codeskeleton_example.django_project_skeleton
 title: Django project skeleton
 description: |
-  Donec ullamcorper nulla non metus auctor fringilla. Sed posuere consectetur
-  est at lobortis. Cras justo odio, dapibus ac facilisis in, egestas eget quam.
-  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas sed diam
-  eget risus varius blandit sit amet non magna. Donec sed odio dui. Aenean
-  lacinia bibendum nulla sed consectetur.
-
-  Aenean eu leo quam. Pellentesque ornare sem lacinia quam venenatis vestibulum.
-  Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus
-  et magnis dis parturient montes, nascetur ridiculus mus. Sed posuere consectetur
-  est at lobortis. Integer posuere erat a ante venenatis dapibus posuere velit
-  aliquet. Sed posuere consectetur est at lobortis.
+  A simple django project skeleton that does not really
+  work. Only an example that shows the basic features
+  of directory tree skeletons.
 variables:
   project_name:
     help_text: |

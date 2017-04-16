@@ -47,6 +47,13 @@ The template language is jinja2, with an extra ``{`` and ``}`` for
 blocks, variables and comments to avoid problems when generating skeletons
 for Django and jinja2 templates.
 
+All you need to do to create a skeleton, is:
+
+- Create a directory with a ``codeskeleton.tree.yaml`` file.
+- Use ``codeskeleton register`` to register the directory as a
+  skeleton directory (this just saves the directory  in
+  ``~/.codeskeleton.config.yaml``).
+
 
 ## TODO
 

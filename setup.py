@@ -7,7 +7,12 @@ setup(
     version='1.0',
     author='Appresso AS',
     packages=find_packages(),
-    install_requires=[],
+    install_requires=[
+        'PyYAML',
+        'termcolor',
+        'fire',
+        'Jinja2',
+    ],
     include_package_data=True,
     zip_safe=False,
     entry_points={

@@ -1,4 +1,5 @@
 from .tree import Tree
+from .snippet import Snippet
 from .variables import Variables
 from .variable import Variable
 from .value_validators import ValueValidators

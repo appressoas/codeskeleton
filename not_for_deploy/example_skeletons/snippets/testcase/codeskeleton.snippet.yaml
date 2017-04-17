@@ -1,13 +1,17 @@
 id: codeskeleton_example.testcase
+title: Python unittest TestCase
+context: python
 
 variables:
-  required:
-    name:
-      help: Name of the test case - automatically suffixed with TestCase to create the test case class name.
+  name:
+    help_text: |
+      Name of the test case. Automatically prefixed with "Test", and the
+      first letter is automatically capitalized.
+
 template: |
-  from django import test
+  import unittest
 
 
-  class {{ name }}TestCase(test.TestCase):
+  class Test{{{ name }}}(unittest.TestCase):
       def test_something(self):
-          {{ END }}
+          $$$END$$$

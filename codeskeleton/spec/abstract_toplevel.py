@@ -1,7 +1,9 @@
 import os
 
+import re
 import yaml
 
+from codeskeleton import exceptions
 from codeskeleton import template
 from codeskeleton.spec.abstract_spec_object import AbstractSpecObject
 from codeskeleton.spec.variables import Variables
@@ -20,7 +22,7 @@ class AbstractToplevel(AbstractSpecObject):
         toplevel.deserialize(data)
         return toplevel
 
-    def __init__(self, base_directory, id=None, title=None, description=None, variables=None):
+    def __init__(self, base_directory, id=None, title=None, description=None, context=None, variables=None):
         """
 
         Args:
@@ -29,12 +31,17 @@ class AbstractToplevel(AbstractSpecObject):
             id: The ID of the spec. Used to uniquely identify the spec.
             title (optional): Short user friendly description of what the spec creates.
             description (optional): Long user friendly description of what the spec creates.
+            context (optional): The context this spec belongs to. Typically the programming
+                language (python, javascript, ...), or the framework (django, react, ...) or
+                a project name for a project specific spec. Must be a single word, all in
+                lowercase (can only contain a-z and numbers).
             variables (codeskeleton.spec.variables.Variables): Variable definitions for the spec.
         """
         self.base_directory = base_directory
         self.id = id
         self._title = title
         self.description = description
+        self.context = context
         self.variables = variables or Variables()
 
     @property
@@ -51,17 +58,17 @@ class AbstractToplevel(AbstractSpecObject):
         Args:
             data (dict): A dict like object with one of the following key/value pairs:
 
-                - ``id``: A string with the ID of the tree spec.
-                - ``title`` (optional): String with a short user friendly description of what
-                  this tree spec creates.
-                - ``description`` (optional): String with a long user friendly description of
-                  what this tree spec creates.
+                - ``id``: See :meth:`.__init__`.
+                - ``title`` (optional): See :meth:`.__init__`.
+                - ``description`` (optional): See :meth:`.__init__`.
+                - ``context`` (optional): See :meth:`.__init__`.
                 - ``variables`` (optional): Data on a format that can be parsed by
                   :meth:`codeskeleton.spec.variables.Variables.deserialize`.
         """
         self.id = data.get('id', None)
         self._title = data.get('title', None)
         self.description = data.get('description', None)
+        self.context = data.get('context', None)
         self.variables = Variables()
         self.variables.deserialize(data.get('variables', {}))
 
@@ -75,4 +82,12 @@ class AbstractToplevel(AbstractSpecObject):
                                          variables=self.variables.values_as_dict())
 
     def validate_spec(self):
+        if not self.id:
+            raise exceptions.SpecValidationError(
+                path='id',
+                message='This attribute is required.')
+        if self.context and not re.match(r'^[a-z0-9]+$', self.context):
+            raise exceptions.SpecValidationError(
+                path='context',
+                message='Must be a lowercase single word containing only a-z and numbers.')
         self.variables.validate_spec(path='variables')

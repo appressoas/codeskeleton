@@ -6,7 +6,8 @@ class Tree(AbstractToplevel):
     """
     Defines the spec for generating a directory tree.
     """
-    def __init__(self, base_directory, id=None, title=None, description=None, variables=None, files=None):
+    def __init__(self, base_directory, id=None, title=None, description=None,
+                 context=None, variables=None, files=None):
         """
 
         Args:
@@ -15,12 +16,17 @@ class Tree(AbstractToplevel):
             id: The ID of the tree spec. Used to uniquely identify this tree spec.
             title (optional): Short user friendly description of what this tree spec creates.
             description (optional): Long user friendly description of what this tree spec creates.
+            context (optional): The context this tree spec belongs to. Typically the programming
+                language (python, javascript, ...), or the framework (django, react, ...) or
+                a project name for a project specific tree spec. Must be a single word, all in
+                lowercase (can only contain a-z and numbers).
             variables (codeskeleton.spec.variables.Variables): Variable definitions for the spec.
             files (codeskeleton.spec.files.Files): Output file definitions for the spec.
         """
         self.files = files or Files()
         super(Tree, self).__init__(
-            base_directory, id=id, title=title, description=description, variables=variables)
+            base_directory, id=id, title=title, description=description,
+            context=context, variables=variables)
 
     def deserialize(self, data):
         """

@@ -4,6 +4,8 @@ description: |
   A simple django project skeleton that does not really
   work. Only an example that shows the basic features
   of directory tree skeletons.
+context: python
+
 variables:
   project_name:
     help_text: |

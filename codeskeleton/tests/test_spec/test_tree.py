@@ -4,10 +4,11 @@ import tempfile
 import unittest
 from collections import OrderedDict
 
+from codeskeleton import exceptions
 from codeskeleton import spec
 
 
-class TestVariables(unittest.TestCase):
+class TestTree(unittest.TestCase):
     def setUp(self):
         self.enviroment_directory = tempfile.mkdtemp()
         self.output_directory = tempfile.mkdtemp()
@@ -17,6 +18,15 @@ class TestVariables(unittest.TestCase):
         shutil.rmtree(self.output_directory)
 
     def test_deserialize_empty_data(self):
+        tree = spec.Tree(base_directory=self.enviroment_directory)
+        tree.deserialize(data={})
+        self.assertEqual(tree.id, None)
+        self.assertEqual(tree.title, None)
+        self.assertEqual(tree.description, None)
+        self.assertEqual(len(tree.variables), 0)
+        self.assertEqual(len(tree.files), 0)
+
+    def test_deserialize_with_data(self):
         tree = spec.Tree(base_directory=self.enviroment_directory)
         tree.deserialize(data={
             'id': 'mockid',
@@ -69,3 +79,20 @@ class TestVariables(unittest.TestCase):
         self.assertEqual(len(writers), 2)
         self.assertEqual(writers[0].file.path, 'a.txt')
         self.assertEqual(writers[1].file.path, 'b.txt')
+
+    def __make_kwargs(self, **overrides):
+        overrides.setdefault('base_directory', self.enviroment_directory)
+        overrides.setdefault('id', 'mockid')
+        return overrides
+
+    def test_validate_spec_no_id(self):
+        tree = spec.Tree(**self.__make_kwargs(id=None))
+        with self.assertRaisesRegex(exceptions.SpecValidationError,
+                                    'This attribute is required.'):
+            tree.validate_spec()
+
+    def test_validate_spec_invalid_context(self):
+        tree = spec.Tree(**self.__make_kwargs(context='two words'))
+        with self.assertRaisesRegex(exceptions.SpecValidationError,
+                                    'Must be a lowercase single word containing only a-z and numbers.'):
+            tree.validate_spec()

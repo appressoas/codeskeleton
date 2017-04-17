@@ -12,6 +12,7 @@ setup(
         'termcolor',
         'fire',
         'Jinja2',
+        'pyclip-copycat',
     ],
     include_package_data=True,
     zip_safe=False,

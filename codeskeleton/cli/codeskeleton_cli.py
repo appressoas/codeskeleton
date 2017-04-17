@@ -233,6 +233,74 @@ class Cli(object):
             for writer in writers:
                 writer.write()
 
+    def list_snippets(self, verbose=False):
+        config = self.__get_config()
+        snippets = spec.FileSystemLoader(config, spec.Snippet).find()
+        for snippet in snippets:
+            entry = snippet.id
+            if verbose and snippet.has_title():
+                entry = '{} ({})'.format(entry, snippet.title)
+            cliutils.safe_print('- {}'.format(entry))
+
+    def __get_snippet_by_id(self, config, id):
+        snippet_cache = spec.SpecCache(*spec.FileSystemLoader(config, spec.Snippet).find())
+        try:
+            return snippet_cache.get_by_id(id)
+        except KeyError:
+            cliutils.print_error('No snippet skeleton with this id: {}'.format(id))
+            raise SystemExit()
+
+    def __print_snippet_help(self, snippet):
+        cliutils.safe_print('')
+        cliutils.print_bold('ABOUT:')
+        cliutils.safe_print('id: {}'.format(snippet.id))
+        if snippet.has_title() and snippet.description:
+            cliutils.safe_print('')
+        if snippet.has_title():
+            cliutils.safe_print(snippet.title)
+        if snippet.description:
+            cliutils.safe_print('')
+            cliutils.safe_print(snippet.description)
+        cliutils.safe_print('')
+
+        if snippet.variables:
+            cliutils.print_bold('VARIABLES:')
+            self.__print_variables_help(variables=snippet.variables)
+
+    def snippet(self, id, help=False, no_clipboard=False, no_stdout=False, **variables):
+        """
+        Build a snippet from a ``skeleton.snippet.yaml`` file.
+
+        --id <id>
+            The ID of a snippet spec. Use "list-snippets" to list all available IDs.
+            REQUIRED.
+        --help
+            Show help for the snippet spec. This includes information about the
+            snippet spec, and all the available variables.
+        --no-clipboard
+            Do not copy results to clipboard.
+        --no-stdout
+            Do not write results to stdout.
+        --<variable-name> <value>
+            Set variables for the snippet spec. Use --help to see the available variables.
+            I.E.: If the tree snippet takes a variable named ``project_name``, you would
+            specify a value for this variable using ``--project-name "My project"``.
+        """
+        config = self.__get_config()
+        snippet = self.__get_snippet_by_id(config, id)
+        snippet.validate_spec()
+        if help:
+            self.__print_snippet_help(snippet=snippet)
+            return
+        self.__validate_values(variables=snippet.variables, valuedict=variables)
+        snippet.variables.set_variable_values(**variables)
+        if not no_stdout:
+            cliutils.safe_print(snippet.render())
+        if not no_clipboard:
+            snippet.render_to_clipboard()
+            cliutils.safe_print('')
+            cliutils.print_success('Copied to clipboard')
+
     def gui(self):
         from codeskeleton.gui.gui import CodeSkeletonApp
         CodeSkeletonApp(codeskeleton_config=self.__get_config()).run()

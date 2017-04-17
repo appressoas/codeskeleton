@@ -4,5 +4,6 @@ PyYAML==3.12
 wheel==0.24.0
 termcolor==1.1.0
 fire==0.1.0
+pyclip-copycat==1.0
 
 -e .

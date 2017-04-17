@@ -1,3 +1,5 @@
+import clipboard
+
 from codeskeleton import exceptions
 from codeskeleton.spec.abstract_toplevel import AbstractToplevel
 
@@ -49,7 +51,7 @@ class Snippet(AbstractToplevel):
         self.template = data.get('template')
         self.templatepath = data.get('templatepath')
 
-    def render(self):
+    def render(self, keep_end_marker=False):
         """
         Render the snippet.
 
@@ -59,9 +61,18 @@ class Snippet(AbstractToplevel):
         """
         template_environment = self.make_template_environment()
         if self.template:
-            return template_environment.from_string(self.template).render()
+            result = template_environment.from_string(self.template).render()
         else:
-            return template_environment.get_template(self.templatepath).render()
+            result = template_environment.get_template(self.templatepath).render()
+        if not keep_end_marker:
+            result = result.replace('$$$END$$$', '')
+        return result
+
+    def render_to_clipboard(self, keep_end_marker=False):
+        """
+        Renders the snippet using :meth:`.render`, and copies the result to the clipboard.
+        """
+        clipboard.copy(self.render(keep_end_marker=keep_end_marker).encode('utf-8'))
 
     def validate_spec(self):
         super(Snippet, self).validate_spec()

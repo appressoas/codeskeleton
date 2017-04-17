@@ -12,6 +12,6 @@ template: |
   import unittest
 
 
-  class Test{{{ name }}}(unittest.TestCase):
+  class Test{{{ name|capitalize }}}(unittest.TestCase):
       def test_something(self):
           $$$END$$$

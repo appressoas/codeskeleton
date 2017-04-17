@@ -1,0 +1,11 @@
+id: component
+title: ReactJS component
+context: reactjs
+
+variables:
+  name:
+    help_text: |
+      Name of the component class. Automatically suffixed with "Component", and the
+      first letter is automatically capitalized.
+
+templatepath: component.codeskeleton.jsx

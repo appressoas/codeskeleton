@@ -1,5 +1,6 @@
 import os
 import textwrap
+from collections import OrderedDict
 
 import fire
 import sys
@@ -64,17 +65,27 @@ class Cli(object):
             cliutils.print_bold('VARIABLES:')
             self.__print_variables_help(variables=toplevel_spec.variables)
 
-    def __list_specs(self, spec_class, create_command_name, verbose=True):
+    def __group_specs_by_context(self, specs):
+        grouped_specs = OrderedDict()
+        for spec_object in sorted(specs, key=lambda s: s.full_id):
+            if spec_object.context not in grouped_specs:
+                grouped_specs[spec_object.context] = []
+            grouped_specs[spec_object.context].append(spec_object)
+        return grouped_specs
+
+    def __list_specs(self, spec_class, create_command_name, quiet=False):
         config = self.__get_config()
         specs = spec.FileSystemLoader(config, spec_class).find()
-        if verbose:
-            cliutils.print_bold('{}s:'.format(spec_class.__name__))
-        for spec_object in specs:
-            output = spec_object.full_id
-            if verbose and spec_object.title:
-                output = '{} ({})'.format(output, spec_object.title)
-            cliutils.safe_print('- {}'.format(output))
-        if verbose:
+        for context, spec_objects in self.__group_specs_by_context(specs).items():
+            if not quiet:
+                cliutils.safe_print('')
+                cliutils.print_bold('{}:'.format(context))
+            for spec_object in spec_objects:
+                output = spec_object.full_id
+                if not quiet and spec_object.title:
+                    output = '{} ({})'.format(output, spec_object.title)
+                cliutils.safe_print('- {}'.format(output))
+        if not quiet:
             cliutils.safe_print('')
             cliutils.print_bold('Use:')
             cliutils.safe_print(
@@ -134,8 +145,8 @@ class Cli(object):
         for spec_directory in sorted(config.spec_directories):
             cliutils.safe_print('- {}'.format(spec_directory))
 
-    def list_trees(self, verbose=False):
-        self.__list_specs(spec_class=spec.Tree, verbose=verbose,
+    def list_trees(self, quiet=False):
+        self.__list_specs(spec_class=spec.Tree, quiet=quiet,
                           create_command_name='create-tree')
 
     def __print_create_tree_preview(self, writers, skipped_writers, previewmode='short'):
@@ -247,8 +258,8 @@ class Cli(object):
             for writer in writers:
                 writer.write()
 
-    def list_snippets(self, verbose=False):
-        self.__list_specs(spec_class=spec.Snippet, verbose=verbose,
+    def list_snippets(self, quiet=False):
+        self.__list_specs(spec_class=spec.Snippet, quiet=quiet,
                           create_command_name='snippet')
 
     def __get_snippet_by_id(self, config, full_id):

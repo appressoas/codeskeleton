@@ -58,6 +58,7 @@ class TestSnippet(unittest.TestCase):
 
     def __make_kwargs(self, **overrides):
         overrides.setdefault('base_directory', self.enviroment_directory)
+        overrides.setdefault('context', 'mockcontext')
         overrides.setdefault('id', 'mockid')
         overrides.setdefault('template', 'mocktemplate')
         return overrides
@@ -65,17 +66,23 @@ class TestSnippet(unittest.TestCase):
     def test_validate_spec_no_id(self):
         snippet = spec.Snippet(**self.__make_kwargs(id=None))
         with self.assertRaisesRegex(exceptions.SpecValidationError,
-                                    'This attribute is required.'):
+                                    '^id: This attribute is required.$'):
+            snippet.validate_spec()
+
+    def test_validate_spec_no_context(self):
+        snippet = spec.Snippet(**self.__make_kwargs(context=None))
+        with self.assertRaisesRegex(exceptions.SpecValidationError,
+                                    '^context: This attribute is required.$'):
             snippet.validate_spec()
 
     def test_validate_spec_invalid_context(self):
         snippet = spec.Snippet(**self.__make_kwargs(context='two words'))
         with self.assertRaisesRegex(exceptions.SpecValidationError,
-                                    'Must be a lowercase single word containing only a-z and numbers.'):
+                                    '^context: Must be a lowercase single word containing only a-z and numbers.$'):
             snippet.validate_spec()
 
     def test_validate_spec_no_template(self):
         snippet = spec.Snippet(**self.__make_kwargs(template=None, templatepath=''))
         with self.assertRaisesRegex(exceptions.SpecValidationError,
-                                    '"template" or "templatepath" is required for a snippet spec'):
+                                    '^template|templatepath: "template" or "templatepath" is required$'):
             snippet.validate_spec()

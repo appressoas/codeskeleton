@@ -1,10 +1,10 @@
-id: codeskeleton_example.django_project_skeleton
+context: django
+id: project_skeleton
 title: Django project skeleton
 description: |
   A simple django project skeleton that does not really
   work. Only an example that shows the basic features
   of directory tree skeletons.
-context: python
 
 variables:
   project_name:

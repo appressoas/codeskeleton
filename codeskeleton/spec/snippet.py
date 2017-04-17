@@ -78,6 +78,6 @@ class Snippet(AbstractToplevel):
         super(Snippet, self).validate_spec()
         if self.template is None and not self.templatepath:
             raise exceptions.SpecValidationError(
-                path='',
+                path='template|templatepath',
                 message='"template" or "templatepath" is required for a snippet spec.'
             )

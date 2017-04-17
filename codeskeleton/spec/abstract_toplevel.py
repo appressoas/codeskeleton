@@ -28,28 +28,25 @@ class AbstractToplevel(AbstractSpecObject):
         Args:
             base_directory: Base directory where the files for the spec template files are located.
                 Normally the directory where the spec file is located.
-            id: The ID of the spec. Used to uniquely identify the spec.
-            title (optional): Short user friendly description of what the spec creates.
-            description (optional): Long user friendly description of what the spec creates.
             context (optional): The context this spec belongs to. Typically the programming
                 language (python, javascript, ...), or the framework (django, react, ...) or
                 a project name for a project specific spec. Must be a single word, all in
                 lowercase (can only contain a-z and numbers).
+            id: The ID of the spec. Used to uniquely identify the spec within the ``context``.
+            title (optional): Short user friendly description of what the spec creates.
+            description (optional): Long user friendly description of what the spec creates.
             variables (codeskeleton.spec.variables.Variables): Variable definitions for the spec.
         """
         self.base_directory = base_directory
         self.id = id
-        self._title = title
+        self.title = title
         self.description = description
         self.context = context
         self.variables = variables or Variables()
 
     @property
-    def title(self):
-        return self._title or self.id
-
-    def has_title(self):
-        return bool(self._title)
+    def full_id(self):
+        return '{}.{}'.format(self.context, self.id)
 
     def deserialize(self, data):
         """
@@ -66,7 +63,7 @@ class AbstractToplevel(AbstractSpecObject):
                   :meth:`codeskeleton.spec.variables.Variables.deserialize`.
         """
         self.id = data.get('id', None)
-        self._title = data.get('title', None)
+        self.title = data.get('title', None)
         self.description = data.get('description', None)
         self.context = data.get('context', None)
         self.variables = Variables()
@@ -86,7 +83,11 @@ class AbstractToplevel(AbstractSpecObject):
             raise exceptions.SpecValidationError(
                 path='id',
                 message='This attribute is required.')
-        if self.context and not re.match(r'^[a-z0-9]+$', self.context):
+        if not self.context:
+            raise exceptions.SpecValidationError(
+                path='context',
+                message='This attribute is required.')
+        if not re.match(r'^[a-z0-9]+$', self.context):
             raise exceptions.SpecValidationError(
                 path='context',
                 message='Must be a lowercase single word containing only a-z and numbers.')

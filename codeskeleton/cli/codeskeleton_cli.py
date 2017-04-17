@@ -2,6 +2,7 @@ import os
 import textwrap
 
 import fire
+import sys
 
 from codeskeleton import exceptions
 from codeskeleton import spec
@@ -27,6 +28,61 @@ class Cli(object):
             cliutils.print_error('{!r} is not a codeskeleton directory. Must have '
                                  'a "trees" or a "snippets" subdirectory.'.format(directory))
             raise SystemExit()
+
+    def __print_variables_help(self, variables):
+        for variable in variables.iterate_input_variables():
+            suffix = ''
+            if variable.is_required():
+                suffix = colorize.colored_text('    [REQUIRED]', color=colorize.COLOR_YELLOW,
+                                               bold=True)
+            cliutils.safe_print('--{} <value>{}'.format(variable.name.replace('_', '-'), suffix))
+            indent = '    '
+            if variable.help_text:
+                cliutils.safe_print(textwrap.indent(
+                    textwrap.fill(variable.help_text),
+                    indent))
+            if variable.default:
+                if variable.default.variable:
+                    message = 'Defaults to the value of the {!r} variable.'.format(
+                        variable.default.variable)
+                else:
+                    message = 'Defaults to {!r}.'.format(variable.default.value)
+                cliutils.safe_print(textwrap.indent(message, indent))
+
+    def __print_spec_help(self, toplevel_spec):
+        cliutils.safe_print('')
+        cliutils.print_bold('ABOUT:')
+        cliutils.safe_print('id: {}'.format(toplevel_spec.full_id))
+        if toplevel_spec.title:
+            cliutils.safe_print(toplevel_spec.title)
+        if toplevel_spec.description:
+            cliutils.safe_print('')
+            cliutils.safe_print(toplevel_spec.description)
+        cliutils.safe_print('')
+
+        if toplevel_spec.variables:
+            cliutils.print_bold('VARIABLES:')
+            self.__print_variables_help(variables=toplevel_spec.variables)
+
+    def __list_specs(self, spec_class, create_command_name, verbose=True):
+        config = self.__get_config()
+        specs = spec.FileSystemLoader(config, spec_class).find()
+        if verbose:
+            cliutils.print_bold('{}s:'.format(spec_class.__name__))
+        for spec_object in specs:
+            output = spec_object.full_id
+            if verbose and spec_object.title:
+                output = '{} ({})'.format(output, spec_object.title)
+            cliutils.safe_print('- {}'.format(output))
+        if verbose:
+            cliutils.safe_print('')
+            cliutils.print_bold('Use:')
+            cliutils.safe_print(
+                '{prefix} {scriptname} {create_command_name} <id> --help'.format(
+                    prefix=colorize.colored_text('$ ', color=colorize.COLOR_GREY, bold=True),
+                    scriptname=os.path.basename(sys.argv[0]),
+                    create_command_name=create_command_name))
+            cliutils.print_bold('to show usage help for a {}.'.format(spec_class.__name__.lower()))
 
     def register(self, directory=None):
         """
@@ -79,13 +135,8 @@ class Cli(object):
             cliutils.safe_print('- {}'.format(spec_directory))
 
     def list_trees(self, verbose=False):
-        config = self.__get_config()
-        trees = spec.FileSystemLoader(config, spec.Tree).find()
-        for tree in trees:
-            entry = tree.id
-            if verbose and tree.has_title():
-                entry = '{} ({})'.format(entry, tree.title)
-            cliutils.safe_print('- {}'.format(entry))
+        self.__list_specs(spec_class=spec.Tree, verbose=verbose,
+                          create_command_name='create-tree')
 
     def __print_create_tree_preview(self, writers, skipped_writers, previewmode='short'):
         if previewmode == 'none':
@@ -113,12 +164,12 @@ class Cli(object):
         if not writers:
             cliutils.print_warning('All files already exist.')
 
-    def __get_tree_by_id(self, config, id):
+    def __get_tree_by_id(self, config, full_id):
         tree_cache = spec.SpecCache(*spec.FileSystemLoader(config, spec.Tree).find())
         try:
-            return tree_cache.get_by_id(id)
+            return tree_cache.get_spec(full_id)
         except KeyError:
-            cliutils.print_error('No tree skeleton with this id: {}'.format(id))
+            cliutils.print_error('No tree skeleton with this id: {}'.format(full_id))
             raise SystemExit()
 
     def __validate_values(self, variables, valuedict):
@@ -140,50 +191,13 @@ class Cli(object):
             cliutils.print_bold('Try adding --help for documentation for all the variables.')
             raise SystemExit()
 
-    def __print_variables_help(self, variables):
-        for variable in variables.iterate_input_variables():
-            suffix = ''
-            if variable.is_required():
-                suffix = colorize.colored_text('    [REQUIRED]', color=colorize.COLOR_YELLOW,
-                                               bold=True)
-            cliutils.safe_print('--{} <value>{}'.format(variable.name.replace('_', '-'), suffix))
-            indent = '    '
-            if variable.help_text:
-                cliutils.safe_print(textwrap.indent(
-                    textwrap.fill(variable.help_text),
-                    indent))
-            if variable.default:
-                if variable.default.variable:
-                    message = 'Defaults to the value of the {!r} variable.'.format(
-                        variable.default.variable)
-                else:
-                    message = 'Defaults to {!r}.'.format(variable.default.value)
-                cliutils.safe_print(textwrap.indent(message, indent))
-
-    def __print_tree_help(self, tree):
-        cliutils.safe_print('')
-        cliutils.print_bold('ABOUT:')
-        cliutils.safe_print('id: {}'.format(tree.id))
-        if tree.has_title() and tree.description:
-            cliutils.safe_print('')
-        if tree.has_title():
-            cliutils.safe_print(tree.title)
-        if tree.description:
-            cliutils.safe_print('')
-            cliutils.safe_print(tree.description)
-        cliutils.safe_print('')
-
-        if tree.variables:
-            cliutils.print_bold('VARIABLES:')
-            self.__print_variables_help(variables=tree.variables)
-
     def create_tree(self, id, out=None, overwrite=False,
                     preview='short', help=False, pretend=False, **variables):
         """
         Create a directory tree from a ``skeleton.tree.yaml`` file.
 
         --id <id>
-            The ID of a tree skeleton spec. Use "list_trees" to list all available IDs.
+            The ID of a tree skeleton spec. Use "list-trees" to list all available IDs.
             REQUIRED.
         --help
             Show help for the the tree spec. This includes information about the
@@ -208,10 +222,10 @@ class Cli(object):
             specify a value for this variable using ``--project-name "My project"``.
         """
         config = self.__get_config()
-        tree = self.__get_tree_by_id(config=config, id=id)
+        tree = self.__get_tree_by_id(config=config, full_id=id)
         tree.validate_spec()
         if help:
-            self.__print_tree_help(tree=tree)
+            self.__print_spec_help(toplevel_spec=tree)
             return
         self.__validate_values(variables=tree.variables, valuedict=variables)
         tree.variables.set_variable_values(**variables)
@@ -234,38 +248,16 @@ class Cli(object):
                 writer.write()
 
     def list_snippets(self, verbose=False):
-        config = self.__get_config()
-        snippets = spec.FileSystemLoader(config, spec.Snippet).find()
-        for snippet in snippets:
-            entry = snippet.id
-            if verbose and snippet.has_title():
-                entry = '{} ({})'.format(entry, snippet.title)
-            cliutils.safe_print('- {}'.format(entry))
+        self.__list_specs(spec_class=spec.Snippet, verbose=verbose,
+                          create_command_name='snippet')
 
-    def __get_snippet_by_id(self, config, id):
+    def __get_snippet_by_id(self, config, full_id):
         snippet_cache = spec.SpecCache(*spec.FileSystemLoader(config, spec.Snippet).find())
         try:
-            return snippet_cache.get_by_id(id)
+            return snippet_cache.get_spec(full_id=full_id)
         except KeyError:
-            cliutils.print_error('No snippet skeleton with this id: {}'.format(id))
+            cliutils.print_error('No snippet skeleton with this id: {}'.format(full_id))
             raise SystemExit()
-
-    def __print_snippet_help(self, snippet):
-        cliutils.safe_print('')
-        cliutils.print_bold('ABOUT:')
-        cliutils.safe_print('id: {}'.format(snippet.id))
-        if snippet.has_title() and snippet.description:
-            cliutils.safe_print('')
-        if snippet.has_title():
-            cliutils.safe_print(snippet.title)
-        if snippet.description:
-            cliutils.safe_print('')
-            cliutils.safe_print(snippet.description)
-        cliutils.safe_print('')
-
-        if snippet.variables:
-            cliutils.print_bold('VARIABLES:')
-            self.__print_variables_help(variables=snippet.variables)
 
     def snippet(self, id, help=False, no_clipboard=False, no_stdout=False, **variables):
         """
@@ -287,10 +279,10 @@ class Cli(object):
             specify a value for this variable using ``--project-name "My project"``.
         """
         config = self.__get_config()
-        snippet = self.__get_snippet_by_id(config, id)
+        snippet = self.__get_snippet_by_id(config=config, full_id=id)
         snippet.validate_spec()
         if help:
-            self.__print_snippet_help(snippet=snippet)
+            self.__print_spec_help(toplevel_spec=snippet)
             return
         self.__validate_values(variables=snippet.variables, valuedict=variables)
         snippet.variables.set_variable_values(**variables)

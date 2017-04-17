@@ -88,11 +88,17 @@ class TestTree(unittest.TestCase):
     def test_validate_spec_no_id(self):
         tree = spec.Tree(**self.__make_kwargs(id=None))
         with self.assertRaisesRegex(exceptions.SpecValidationError,
-                                    'This attribute is required.'):
+                                    '^id: This attribute is required.$'):
+            tree.validate_spec()
+
+    def test_validate_spec_no_context(self):
+        tree = spec.Tree(**self.__make_kwargs(context=None))
+        with self.assertRaisesRegex(exceptions.SpecValidationError,
+                                    '^context: This attribute is required.$'):
             tree.validate_spec()
 
     def test_validate_spec_invalid_context(self):
         tree = spec.Tree(**self.__make_kwargs(context='two words'))
         with self.assertRaisesRegex(exceptions.SpecValidationError,
-                                    'Must be a lowercase single word containing only a-z and numbers.'):
+                                    '^context: Must be a lowercase single word containing only a-z and numbers.$'):
             tree.validate_spec()

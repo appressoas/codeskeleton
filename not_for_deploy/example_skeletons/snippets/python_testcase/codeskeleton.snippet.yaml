@@ -1,4 +1,4 @@
-id: codeskeleton_example.testcase
+id: testcase
 title: Python unittest TestCase
 context: python
 

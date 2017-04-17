@@ -11,6 +11,16 @@ class Config(object):
     Config file parser
     """
 
+    @classmethod
+    def load_or_create(cls, configpath=os.path.expanduser('~/.codeskeleton.config.yaml')):
+        config = cls(path=configpath)
+        if os.path.exists(configpath):
+            config.load_from_disk()
+        else:
+            # Create config file if it does not exist
+            config.save_to_disk()
+        return config
+
     def __init__(self, path):
         self.path = path
         self.spec_directories = set()

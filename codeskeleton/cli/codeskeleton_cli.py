@@ -16,14 +16,7 @@ class Cli(object):
     """
 
     def __get_config(self):
-        configpath = os.path.expanduser('~/.codeskeleton.config.yaml')
-        config = Config(path=configpath)
-        if os.path.exists(configpath):
-            config.load_from_disk()
-        else:
-            # Create config file if it does not exist
-            config.save_to_disk()
-        return config
+        return Config.load_or_create()
 
     def __is_skeleton_directory(self, directory):
         return os.path.isdir(os.path.join(directory, 'trees')) or \
@@ -242,7 +235,7 @@ class Cli(object):
 
     def gui(self):
         from codeskeleton.gui.gui import CodeSkeletonApp
-        CodeSkeletonApp().run()
+        CodeSkeletonApp(codeskeleton_config=self.__get_config()).run()
 
 
 def main():

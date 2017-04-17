@@ -240,6 +240,10 @@ class Cli(object):
             for writer in writers:
                 writer.write()
 
+    def gui(self):
+        from codeskeleton.gui.gui import CodeSkeletonApp
+        CodeSkeletonApp().run()
+
 
 def main():
     fire.Fire(Cli)

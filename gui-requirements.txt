@@ -1,0 +1,9 @@
+# Installs GUI requirements.
+#
+# On OSX, you must use:
+#
+# $ USE_OSX_FRAMEWORKS=0 pip install -r gui-requirements.txt
+#
+
+Cython==0.23
+kivy==1.9.1

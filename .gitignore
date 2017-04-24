@@ -1,3 +1,4 @@
+dist/
 not_for_deploy/docs/build/
 *.o
 *.pyc

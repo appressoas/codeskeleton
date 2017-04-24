@@ -154,7 +154,7 @@ class Cli(object):
             return
         if writers:
             for writer in writers:
-                cliutils.safe_print(writer.get_absolute_output_path())
+                cliutils.print_success(writer.get_absolute_output_path())
                 if previewmode == 'filenames':
                     continue
                 content = writer.get_content().strip()
@@ -166,7 +166,10 @@ class Cli(object):
                         contentlines = contentlines[:3]
                         contentlines.append('...')
                     content = '\n'.join(contentlines)
+                    # if len(contentlines) > 3:
+                    #     cliutils.print_blue('...')
                 cliutils.safe_print(textwrap.indent(content, prefix='    '))
+                cliutils.safe_print('')
         if skipped_writers:
             cliutils.print_warning('Will skip the following files - they already exist:')
             for writer in skipped_writers:

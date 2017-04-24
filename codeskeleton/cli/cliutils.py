@@ -35,10 +35,10 @@ def print_success(successmessage):
         color=colorize.COLOR_GREEN))
 
 
-def print_grey(message):
+def print_blue(message):
     safe_print(colorize.colored_text(
         message,
-        color=colorize.COLOR_GREY))
+        color=colorize.COLOR_BLUE))
 
 
 def exit_with_error(errormessage):

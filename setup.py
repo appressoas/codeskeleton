@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 setup(
     name='codeskeleton',
     description='General purpose code skeleton solution.',
-    version='1.0',
+    version='1.0.1',
     author='Appresso AS',
     author_email='post@appresso.no',
     packages=find_packages(),

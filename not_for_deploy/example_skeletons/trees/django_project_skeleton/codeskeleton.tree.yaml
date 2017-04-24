@@ -1,6 +1,6 @@
 context: django
-id: project_skeleton
-title: Django project skeleton
+id: example_project_skeleton
+title: Django project skeleton spec example
 description: |
   A simple django project skeleton that does not really
   work. Only an example that shows the basic features

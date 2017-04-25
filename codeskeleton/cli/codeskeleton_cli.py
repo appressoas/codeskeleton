@@ -307,9 +307,9 @@ class Cli(object):
             cliutils.safe_print('')
             cliutils.print_success('Copied to clipboard')
 
-    def gui(self):
-        from codeskeleton.gui.gui import CodeSkeletonApp
-        CodeSkeletonApp(codeskeleton_config=self.__get_config()).run()
+    # def gui(self):
+    #     from codeskeleton.gui.gui import CodeSkeletonApp
+    #     CodeSkeletonApp(codeskeleton_config=self.__get_config()).run()
 
 
 def main():

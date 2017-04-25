@@ -39,6 +39,9 @@ class TestTree(unittest.TestCase):
             'variables': OrderedDict([
                 ('testvariable1', {}),
                 ('testvariable2', {})
+            ]),
+            'postprocess_files': OrderedDict([
+                ('append_text', {'text': 'suffix'})
             ])
         })
         self.assertEqual(tree.id, 'mockid')
@@ -50,6 +53,7 @@ class TestTree(unittest.TestCase):
         self.assertEqual(len(tree.files), 2)
         self.assertEqual(tree.files._files[0].path, 'a')
         self.assertEqual(tree.files._files[1].path, 'b')
+        self.assertEqual(len(tree.postprocess_files), 1)
 
     def test_collect_writers_overwrite_false(self):
         tree = spec.Tree(base_directory=self.enviroment_directory)

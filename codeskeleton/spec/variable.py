@@ -144,6 +144,7 @@ class Variable(AbstractSpecObject):
             raise exceptions.SpecValidationError(
                 path=path,
                 message='Can not use "arguments" without a "generator".')
+        self.validators.validate_spec(path='{}.validators'.format(path))
 
     def validate_value(self, value):
         """

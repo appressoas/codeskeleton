@@ -20,7 +20,7 @@ class ValueValidators(AbstractSpecObject):
 
     def validate_spec(self, path):
         for validator_name in self._validators:
-            if validator_name in value_validators.VALIDATOR_REGISTRY:
+            if validator_name not in value_validators.VALIDATOR_REGISTRY:
                 raise exceptions.SpecValidationError(
                     path=path,
                     message='Invalid value validator: {!r}. Must be one of: {}'.format(

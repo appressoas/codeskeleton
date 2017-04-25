@@ -1,5 +1,6 @@
-from codeskeleton.spec.abstract_toplevel import AbstractToplevel
-from codeskeleton.spec.files import Files
+from .postprocess_files import PostprocessFiles
+from .abstract_toplevel import AbstractToplevel
+from .files import Files
 
 
 class Tree(AbstractToplevel):
@@ -7,7 +8,7 @@ class Tree(AbstractToplevel):
     Defines the spec for generating a directory tree.
     """
     def __init__(self, base_directory, id=None, title=None, description=None,
-                 context=None, variables=None, files=None):
+                 context=None, variables=None, files=None, postprocess_files=None):
         """
 
         Args:
@@ -24,6 +25,7 @@ class Tree(AbstractToplevel):
             files (codeskeleton.spec.files.Files): Output file definitions for the spec.
         """
         self.files = files or Files()
+        self.postprocess_files = postprocess_files or PostprocessFiles()
         super(Tree, self).__init__(
             base_directory, id=id, title=title, description=description,
             context=context, variables=variables)
@@ -42,6 +44,8 @@ class Tree(AbstractToplevel):
         super(Tree, self).deserialize(data)
         self.files = Files()
         self.files.deserialize(data.get('files', {}))
+        self.postprocess_files = PostprocessFiles()
+        self.postprocess_files.deserialize(data.get('postprocess_files', {}))
 
     def collect_writers(self, output_directory, overwrite=False):
         """

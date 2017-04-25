@@ -8,3 +8,4 @@ from .files import Files
 from .file import File
 from .spec_cache import SpecCache
 from .filesystem_loader import FileSystemLoader
+from .postprocess_files import PostprocessFiles

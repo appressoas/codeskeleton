@@ -12,3 +12,6 @@ class TestNewlineAtEnd(unittest.TestCase):
 
     def test_fixes_if_strange_whitespace(self):
         self.assertEqual(newline_at_end(content='test   \n  '), 'test\n')
+
+    def test_empty_string_does_not_get_newline_added(self):
+        self.assertEqual(newline_at_end(content=''), '')

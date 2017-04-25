@@ -8,7 +8,8 @@ class FileSystemWriter(object):
     """
     A file-system writer for a :class:`.File`.
     """
-    def __init__(self, file, output_directory, template_environment):
+    def __init__(self, file, output_directory, template_environment,
+                 postprocess_files=None):
         """
 
         Args:
@@ -16,11 +17,13 @@ class FileSystemWriter(object):
             output_directory: The root directory to write the file relative to.
             template_environment (jinja2.environment.Environment): The template enviroment,
                 normally created with :func:`codeskeleton.template.make_environment`.
-
+            postprocess_files (codeskeleton.spec.postprocess_files.PostprocessFiles): Optional
+                file postprocessor.
         """
         self.file = file
         self.output_directory = output_directory
         self.template_environment = template_environment
+        self.postprocess_files = postprocess_files
 
     def get_absolute_output_path(self):
         """
@@ -45,7 +48,8 @@ class FileSystemWriter(object):
         """
         Get the content to write to the output file.
         """
-        return self.file.get_content(template_environment=self.template_environment)
+        return self.file.get_content(template_environment=self.template_environment,
+                                     postprocess_files=self.postprocess_files)
 
     def write(self):
         """
@@ -127,7 +131,7 @@ class File(AbstractSpecObject):
         """
         return template_environment.from_string(self.path).render()
 
-    def get_content(self, template_environment):
+    def get_content(self, template_environment, postprocess_files=None):
         """
         Get the content of the file as it should be written to disk (parsed as a
         template if using ``template`` or ``templatepath``.
@@ -135,21 +139,31 @@ class File(AbstractSpecObject):
         Args:
             template_environment (jinja2.environment.Environment): The template enviroment,
                 normally created with :func:`codeskeleton.template.make_environment`.
+            postprocess_files (codeskeleton.spec.postprocess_files.PostprocessFiles): Optional
+                file postprocessor.
 
         Returns:
             str: The content of the output file.
         """
         if self.content is not None:
-            return self.content
-        if self.contentpath is not None:
-            return self._read_file(template_environment=template_environment,
-                                   path=self.contentpath)
-        if self.template:
-            return template_environment.from_string(self.template).render()
-        if self.templatepath:
-            return template_environment.get_template(self.templatepath).render()
+            content = self.content
+        elif self.contentpath is not None:
+            content = self._read_file(template_environment=template_environment,
+                                      path=self.contentpath)
+        elif self.template:
+            content = template_environment.from_string(self.template).render()
+        elif self.templatepath:
+            content = template_environment.get_template(self.templatepath).render()
+        else:
+            content = ''
+        if postprocess_files:
+            content = postprocess_files.postprocess_file(
+                filename=self.get_output_path(template_environment=template_environment),
+                content=content)
+        return content
 
-    def get_filesystem_writer(self, output_directory, template_environment):
+    def get_filesystem_writer(self, output_directory, template_environment,
+                              postprocess_files=None):
         """
         Get a :class:`.FileSystemWriter` for this file.
 
@@ -157,10 +171,16 @@ class File(AbstractSpecObject):
             output_directory: The root directory to write the relative file to.
             template_environment (jinja2.environment.Environment): The template enviroment,
                 normally created with :func:`codeskeleton.template.make_environment`.
+            postprocess_files (codeskeleton.spec.postprocess_files.PostprocessFiles): Optional
+                file postprocessor.
 
         Returns:
             .FileSystemWriter: A FileSystemWriter for this file.
         """
         return FileSystemWriter(file=self,
                                 output_directory=output_directory,
-                                template_environment=template_environment)
+                                template_environment=template_environment,
+                                postprocess_files=postprocess_files)
+
+    def validate_spec(self, path):
+        pass

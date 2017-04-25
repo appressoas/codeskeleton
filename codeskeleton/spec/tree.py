@@ -74,9 +74,15 @@ class Tree(AbstractToplevel):
         writers = []
         for file in self.files:
             writer = file.get_filesystem_writer(output_directory=output_directory,
-                                                template_environment=template_environment)
+                                                template_environment=template_environment,
+                                                postprocess_files=self.postprocess_files)
             if writer.output_path_exists() and not overwrite:
                 skipped_writers.append(writer)
             else:
                 writers.append(writer)
         return skipped_writers, writers
+
+    def validate_spec(self):
+        super(Tree, self).validate_spec()
+        self.files.validate_spec(path='files')
+        self.postprocess_files.validate_spec(path='postprocess_files')

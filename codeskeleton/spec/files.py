@@ -44,3 +44,7 @@ class Files(AbstractSpecObject):
         Get the number of files in the Files object.
         """
         return len(self._files)
+
+    def validate_spec(self, path):
+        for file in self._files:
+            file.validate_spec(path='{}.{}'.format(path, file.path))

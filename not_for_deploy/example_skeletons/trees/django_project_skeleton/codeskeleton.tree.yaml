@@ -44,5 +44,5 @@ files:
   "{{{ project_name }}}/{{{ project_name }}}_core/tests/test_models.py": {content: ''}
 
 postprocess_files:
-  "^.+\.py$":
-    single_empty_last_line: {}
+  "^.+\\.py$":
+    newline_at_end: {}

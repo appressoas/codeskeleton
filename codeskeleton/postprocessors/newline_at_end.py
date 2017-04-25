@@ -3,7 +3,8 @@ from .registry import POSTPROCESSOR_REGISTRY
 
 def newline_at_end(content):
     content = content.rstrip()
-    content = '{}\n'.format(content)
+    if content:
+        content = '{}\n'.format(content)
     return content
 
 

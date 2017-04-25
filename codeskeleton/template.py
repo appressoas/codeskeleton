@@ -2,6 +2,8 @@ from jinja2 import Environment
 from jinja2 import FileSystemLoader
 from jinja2 import select_autoescape
 
+from codeskeleton.jinja2filters.registry import FILTER_REGISTRY
+
 
 def make_environment(base_directory, variables):
     """
@@ -34,4 +36,5 @@ def make_environment(base_directory, variables):
         comment_end_string='#}}',
     )
     environment.globals.update(variables)
+    environment.filters.update(FILTER_REGISTRY.as_dict())
     return environment

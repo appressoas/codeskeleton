@@ -14,7 +14,7 @@ from codeskeleton.config import Config
 
 class Cli(object):
     """
-    TODO: Help
+    Codeskeleton CLI.
     """
 
     def __get_config(self):

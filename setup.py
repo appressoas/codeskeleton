@@ -9,7 +9,7 @@ setup(
     author_email='post@appresso.no',
     packages=find_packages(),
     install_requires=[
-        'PyYAML',
+        'PyYAML==3.12',
         'termcolor',
         'fire',
         'Jinja2',
